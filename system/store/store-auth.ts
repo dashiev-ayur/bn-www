@@ -28,7 +28,7 @@ export class AuthStore {
   getAuth(): IAuthDTO | null {
     const s = localStorage.getItem('auth');
     return s ? JSON.parse(s) : null;
-}
+  }
 
   async logout() {
     try {
@@ -37,9 +37,9 @@ export class AuthStore {
         console.log('logout !');
         await api.logout(auth.refresh_token);
       }
-    } catch(err) {
+    } catch (err) {
       console.log('Error logout !', err);
-      
+
     } finally {
       console.log('logout...fin');
       this.setAuth(null);
@@ -62,7 +62,7 @@ export class AuthStore {
   async refresh() {
     try {
       const auth = this.getAuth();
-      if(!auth?.refresh_token){
+      if (!auth?.refresh_token) {
         throw new Error('Empty refresh_token !');
       }
       const result = await api.refresh(auth.refresh_token);
@@ -71,6 +71,18 @@ export class AuthStore {
       }
     } catch (err) {
       this.setAuth(null);
+    }
+  }
+
+  async test() {
+    try {
+      const auth = this.getAuth();
+      const result = await api.testAccessToken(auth?.access_token || '');
+      this.setAuth(auth);
+      return result.data;
+    } catch (err) {
+      this.setAuth(null);
+      throw err;
     }
   }
 }

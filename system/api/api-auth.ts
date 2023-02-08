@@ -20,3 +20,12 @@ export const logout = (refresh_token: string) => {
     },
   });
 };
+
+
+export const testAccessToken = (access_token: string) => {
+  return http.get('/api/v1/auth/secret', {
+    headers: {
+      Authorization: `Bearer ${access_token}`,
+    },
+  });
+}
