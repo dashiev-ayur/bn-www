@@ -13,6 +13,7 @@ function Copyright(props: any) {
       <div>
         <Typography variant="body2" color="text.secondary" align="center" {...props}>
           <Link href="/">Home</Link>&nbsp;&nbsp;&nbsp;
+          <Link href="/books">Books</Link>&nbsp;&nbsp;&nbsp;
           <Link href="/authors">Authors</Link>&nbsp;&nbsp;&nbsp;
           <Link href="/login">Login</Link>&nbsp;&nbsp;&nbsp;
         </Typography>

@@ -1,8 +1,8 @@
 import { observer } from "mobx-react";
 import React, { useEffect } from "react";
-import { useQuery } from "react-query";
 import _ from "lodash";
 import Layout from "../../app/layout";
+import { useQuery } from "@tanstack/react-query";
 
 const sleep = (m: number) => new Promise(r => setTimeout(r, m))
 
@@ -15,7 +15,7 @@ const fetchNews = async (): Promise<INews[]> => {
   await sleep(1000);
   // throw new Error('Unknown error !!!');
   console.log('FETCH NEWS !!!!');
-  
+
   return Promise.resolve([
     {
       id: 1,
@@ -29,7 +29,7 @@ const fetchNews = async (): Promise<INews[]> => {
 }
 
 const NewsTitles = () => {
-  const { data: news } = useQuery<INews[]>("newsList", fetchNews);
+  const { data: news } = useQuery<INews[]>(['newsList'], fetchNews);
   return (
     <ul>
       {news?.map((row) => {
@@ -40,16 +40,20 @@ const NewsTitles = () => {
 }
 
 export const NewsList = () => {
-  const { data: news, isLoading, isError } = useQuery<INews[]>("newsList1", fetchNews, {
-    useErrorBoundary: (error) => {
-      console.log('error>>', error);
-      return false; // Глобальное отображение ошибки !
+  const { data: news, isLoading, isError } = useQuery<INews[]>(
+    ['newsList'],
+    fetchNews,
+    {
+      useErrorBoundary: (error) => {
+        console.log('error>>', error);
+        return false; // Глобальное отображение ошибки !
+      },
+      // placeholderData: [{
+      //   id: 1,
+      //   title: 'news000',
+      // }],
     },
-    // placeholderData: [{
-    //   id: 1,
-    //   title: 'news000',
-    // }],
-  });
+  );
 
   return (
     <Layout>
