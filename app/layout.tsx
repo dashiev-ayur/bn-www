@@ -5,28 +5,9 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import ErrorBoundary from '../components/ErrorBoundary';
+import { store } from '../system/store';
+import Copyright from '../components/Copyright';
 
-function Copyright(props: any) {
-  return (
-    <div>
-      <div>
-        <Typography variant="body2" color="text.secondary" align="center" {...props}>
-          <Link href="/">Home</Link>&nbsp;&nbsp;&nbsp;
-          <Link href="/books">Books</Link>&nbsp;&nbsp;&nbsp;
-          <Link href="/authors">Authors</Link>&nbsp;&nbsp;&nbsp;
-          <Link href="/login">Login</Link>&nbsp;&nbsp;&nbsp;
-        </Typography>
-      </div>
-      <div>
-        <Typography variant="body2" color="text.secondary" align="center" {...props}>
-          {'Copyright © '}
-          {new Date().getFullYear()}{'.'}
-        </Typography>
-      </div>
-    </div>
-  );
-}
 interface LayoutProps {
   children: ReactNode;
 }

@@ -1,37 +1,54 @@
 import { observer } from "mobx-react";
-import { ReactNode, useEffect, useState } from "react";
-import { api } from "../system/api";
+import { useRouter } from "next/router";
+import { useCallback, useEffect, useState } from "react";
 import { store } from "../system/store";
-import { IAuthDTO } from "../system/typing";
 
-interface IProps {
-  children: ReactNode;
-}
-const Auth = ({ children }: IProps) => {
+const MAX_REFRESH_COUNT = 1000;
 
+const Auth = ({ showCount }: { showCount?: boolean }) => {
+  const router = useRouter();
+  const [count, setCount] = useState(0);
+
+  // =========================================
+  useEffect(() => {
+    if (count < MAX_REFRESH_COUNT) {
+      console.log('refresh====', count);
+      store.auth.refresh();
+    }
+  }, [count]);
+
+  useEffect(() => {
+    const interval = setInterval(() => setCount(c => c + 1), 60 * 1000); // refresh every 1 min
+    return () => clearInterval(interval);
+  }, []);
+
+  // =========================================
   const test = () => {
     store.auth
       .test()
-      .then((r) => console.log('test>>> ok', r))
-      .catch(err => console.error('test>>> false', err.message))
+      .then(() => null)
+      .catch(() => null)
   };
-
-  const refresh = () => {
-    store.auth.refresh();
-  };
-  
-  useEffect(() => {
-    const interval = setInterval(refresh, 3 * 60 * 60 * 1000); // TODO CHANGE
-    return () => clearInterval(interval);
-  }, []);
 
   useEffect(() => {
     test();
-    const interval = setInterval(test, 5 * 1000);
+    const interval = setInterval(test, 20 * 1000); // check access every 20 sec
     return () => clearInterval(interval);
   }, []);
 
-  return <>{children}</>;
+  useEffect(() => {
+    window.addEventListener('storage', test);
+    return () => window.removeEventListener('storage', test);
+  }, []);
+
+  // =========================================
+  useEffect(() => {
+    sessionStorage.setItem('backUrl', window.location.href);
+  }, []);
+
+  // =========================================
+  if (!showCount) return null;
+  return <>{count}</>;
 }
 
 export default observer(Auth);

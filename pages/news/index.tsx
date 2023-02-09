@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import _ from "lodash";
 import Layout from "../../app/layout";
 import { useQuery } from "@tanstack/react-query";
+import Auth from "../../components/Auth";
 
 const sleep = (m: number) => new Promise(r => setTimeout(r, m))
 
@@ -58,6 +59,8 @@ export const NewsList = () => {
   return (
     <Layout>
       <main>
+        <Auth showCount={true}/>
+
         {isError && <div>Не могу загрузить новости !</div>}
         {isLoading && <div>Загружаю новости..</div>}
         {!isLoading &&

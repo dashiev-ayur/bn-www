@@ -6,11 +6,15 @@ import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Layout from '../app/layout';
+import { store } from '../system/store';
+import { useRouter } from 'next/router';
 
 const PageLogout = () => {
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const router = useRouter();
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    await store.auth.logout()
+    router.push({ pathname: '/login' });
   };
 
   return (

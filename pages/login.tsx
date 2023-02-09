@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { observer } from "mobx-react";
 import Link from 'next/link';
 import { Controller, useForm } from 'react-hook-form';
@@ -15,23 +15,54 @@ import Layout from '../app/layout';
 import { useRouter } from 'next/router';
 import { ILoginForm } from '../system/typing';
 import { store } from '../system/store';
+import { Alert } from '@mui/material';
+import axios from 'axios';
 
 const PageLogin = () => {
   const router = useRouter();
-  const { control, handleSubmit } = useForm<ILoginForm>();
+  const { control, handleSubmit, formState: { errors } } = useForm<ILoginForm>({
+    defaultValues: { login: '', password: '' }
+  });
+  const [error, setError] = useState<string>('');
 
+  // ===================================================
   const onSubmit = async (data: ILoginForm) => {
     try {
       const { login, password } = data;
       await store.auth.login(login, password);
-      if (store.auth.isAuth) {
-        router.push({ pathname: '/' });
-      }
     } catch (err) {
-      console.log('err>>>>>>', err);
+      if (axios.isAxiosError(err)) {
+        switch (err.response?.status) {
+          case 401: setError('Пользователь не найден !'); break;
+          default: setError(err.message);
+        }
+      }
     }
   }
 
+  // ===================================================
+  // Если в любой вкладке авторизовались
+  const autologin = useCallback((event: StorageEvent) => {
+    if (event.key === 'auth' && event.newValue) {
+      // авторизуемся по рефреш токену
+      (async () => {
+        if (!store.auth.isAuth) {
+          await store.auth.refresh();
+        }
+        if (store.auth.isAuth) {
+          const backUrl = sessionStorage.getItem('backUrl');
+          router.push({ pathname: backUrl ? backUrl : '/' });
+        }
+      })();
+    }
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('storage', autologin);
+    return () => window.removeEventListener('storage', autologin);
+  }, []);
+
+  // ===================================================
   return (
     <Layout>
       <Box
@@ -48,10 +79,12 @@ const PageLogin = () => {
         <Typography component="h1" variant="h5">
           Авторизация
         </Typography>
+
         <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate sx={{ mt: 1 }}>
           <Controller
             name="login"
             control={control}
+            rules={{ required: true }}
             render={({ field }) =>
               <TextField
                 {...field}
@@ -61,11 +94,15 @@ const PageLogin = () => {
                 label="Login"
                 autoComplete="login"
                 autoFocus
+                error={errors.login ? true : false}
+                onFocus={() => setError('')}
+              // helperText={errors.login ? 'Обязательное поле' : ''}
               />}
           />
           <Controller
             name="password"
             control={control}
+            rules={{ required: true }}
             render={({ field }) =>
               <TextField
                 {...field}
@@ -75,8 +112,12 @@ const PageLogin = () => {
                 label="Password"
                 type="password"
                 autoComplete="current-password"
+                error={errors.password ? true : false}
+                onFocus={() => setError('')}
               />}
           />
+          {error && <Alert severity="error">{error}</Alert>}
+
           <Button
             type="submit"
             fullWidth

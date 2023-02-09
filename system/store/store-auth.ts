@@ -49,13 +49,11 @@ export class AuthStore {
   async login(login: string, password: string) {
     try {
       const result = await api.auth({ login, password });
-      if (result.data) {
-        this.setAuth(result.data);
-      } else {
-        throw new Error('error login !');
-      }
+      this.setAuth(result.data);
+      return result;
     } catch (err) {
       this.setAuth(null);
+      throw err;
     }
   }
 

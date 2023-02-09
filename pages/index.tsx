@@ -1,13 +1,17 @@
+import { useQuery } from '@tanstack/react-query';
 import { observer } from 'mobx-react';
 import Layout from '../app/layout'
 import Auth from '../components/Auth';
-import Logout from '../components/Logout';
+import { api } from '../system/api';
 import { store } from '../system/store';
 
 const Home = () => {
+
+  const {data} = useQuery(['users'], api.getUsers);
+
   return (
     <Layout>
-      <Auth>
+      <Auth showCount={true}/>
         <p>{store.auth.isAuth ? '+' : '-'}</p>
         {!store.auth.isAuth &&
           <div>
@@ -16,10 +20,11 @@ const Home = () => {
         }
         {store.auth.isAuth &&
           <div>
-            <Logout />
+            Вы авторизованы !
+            <pre>{JSON.stringify(data?.data, null, 2)}</pre>
           </div>
         }
-      </Auth>
+      
     </Layout>
   )
 }
