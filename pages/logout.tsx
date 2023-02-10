@@ -11,10 +11,12 @@ import { useRouter } from 'next/router';
 
 const PageLogout = () => {
   const router = useRouter();
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    await store.auth.logout()
-    router.push({ pathname: '/login' });
+    await store.auth.logout();
+    const backUrl = sessionStorage.getItem('backUrl');
+    router.push(backUrl ? backUrl : '/', undefined, { shallow: true });
   };
 
   return (

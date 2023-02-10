@@ -1,3 +1,8 @@
+export enum AppRoles {
+  USER = 'USER',
+  CLIENT = 'CLIENT',
+  ADMIN = 'ADMIN',
+}
 export interface IAuthDTO {
   access_token: string;
   refresh_token: string;

@@ -25,40 +25,40 @@ const PageLogin = () => {
   });
   const [error, setError] = useState<string>('');
 
+  const onLogin = () => {
+    if (store.auth.isAuth) {
+      const backUrl = sessionStorage.getItem('backUrl');
+      router.push(backUrl ? backUrl : '/', undefined, { shallow: true });
+    }
+  }
   // ===================================================
   const onSubmit = async (data: ILoginForm) => {
     try {
       const { login, password } = data;
-      await store.auth.login(login, password);
+      await store.auth.login(login, password)
+      onLogin();
     } catch (err) {
       if (axios.isAxiosError(err)) {
         switch (err.response?.status) {
           case 401: setError('Пользователь не найден !'); break;
           default: setError(err.message);
         }
+      } else{
+        setError('Network error !');
       }
     }
   }
 
   // ===================================================
-  // Если в любой вкладке авторизовались
-  const autologin = useCallback((event: StorageEvent) => {
-    if (event.key === 'auth' && event.newValue) {
-      // авторизуемся по рефреш токену
-      (async () => {
-        if (!store.auth.isAuth) {
-          await store.auth.refresh();
-        }
-        if (store.auth.isAuth) {
-          const backUrl = sessionStorage.getItem('backUrl');
-          router.push({ pathname: backUrl ? backUrl : '/' });
-        }
-      })();
+  // Если в любой другой вкладке авторизовались
+  const autologin = (event: StorageEvent) => {
+    if (event.key === 'auth') {
+      store.auth.refresh().then(() => { onLogin(); }).catch(()=>{});
     }
-  }, []);
+  };
 
   useEffect(() => {
-    window.addEventListener('storage', autologin);
+    window.addEventListener('storage', autologin, false); // перехват событий других вкладок
     return () => window.removeEventListener('storage', autologin);
   }, []);
 

@@ -1,9 +1,7 @@
 import { ILoginDTO } from "../typing";
 import { http } from "../utils/http-common";
 
-export const auth = (body: ILoginDTO) => {
-  return http.post('/api/v1/auth/login', body);
-};
+export const auth = (body: ILoginDTO) => http.post('/api/v1/auth/login', body);
 
 export const refresh = (refresh_token: string) => {
   return http.post('/api/v1/auth/refresh', {}, {

@@ -13,7 +13,7 @@ export class AuthStore {
   auth: IAuthDTO | null = null;
   isAuth = false;
 
-  setAuth(auth: IAuthDTO | null) {
+  private setAuth(auth: IAuthDTO | null) {
     if (auth) {
       localStorage.setItem('auth', JSON.stringify(auth));
       this.auth = auth;
@@ -25,28 +25,25 @@ export class AuthStore {
     }
   }
 
-  getAuth(): IAuthDTO | null {
+  public getAuth(): IAuthDTO | null {
     const s = localStorage.getItem('auth');
     return s ? JSON.parse(s) : null;
   }
 
-  async logout() {
+  public async logout() {
     try {
       const auth = this.getAuth();
       if (auth?.refresh_token) {
-        console.log('logout !');
         await api.logout(auth.refresh_token);
       }
     } catch (err) {
-      console.log('Error logout !', err);
-
+      throw err;
     } finally {
-      console.log('logout...fin');
       this.setAuth(null);
     }
   }
 
-  async login(login: string, password: string) {
+  public async login(login: string, password: string) {
     try {
       const result = await api.auth({ login, password });
       this.setAuth(result.data);
@@ -57,26 +54,24 @@ export class AuthStore {
     }
   }
 
-  async refresh() {
+  public async refresh() {
     try {
       const auth = this.getAuth();
-      if (!auth?.refresh_token) {
-        throw new Error('Empty refresh_token !');
-      }
+      if (!auth) throw new Error('Empty auth !');
       const result = await api.refresh(auth.refresh_token);
-      if (result.data) {
-        this.setAuth(result.data);
-      }
+      this.setAuth(result.data);
+      return result.data;
     } catch (err) {
       this.setAuth(null);
+      throw err;
     }
   }
 
   async test() {
     try {
       const auth = this.getAuth();
+      if(!auth) throw new Error('Empty auth !');
       const result = await api.testAccessToken(auth?.access_token || '');
-      this.setAuth(auth);
       return result.data;
     } catch (err) {
       this.setAuth(null);

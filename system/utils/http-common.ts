@@ -30,11 +30,14 @@ http.interceptors.response.use(
     return response;
   },
   (error) => {
-    const win: Window = window;
-    const status = error.response?.status || 500;
-    if (status === 401) {
-      win.location = win.location.protocol + '//' + win.location.host + '/login';
-    }
+    // Не очень идея
+    // const win: Window = window;
+    // const status = error.response?.status || 500;
+    // if (status === 401) {
+    //   if(win.location.pathname !== '/login'){
+    //     win.location = win.location.protocol + '//' + win.location.host + '/login';
+    //   }
+    // }
     return Promise.reject(error);
   },
 );
