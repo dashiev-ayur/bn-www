@@ -12,6 +12,9 @@ const Auth = () => {
   const [refreshing, setRefreshing] = useState(true);
 
   const test = () => store.auth.test().catch(() => null);
+  const test2 = () => {
+    if(!document.hidden) store.auth.test().catch(() => null);
+  };
   const refresh = () => store.auth.refresh().catch(() => null);
 
   const testQuery = useQuery<IUser, AxiosError | Error>({
@@ -63,6 +66,12 @@ const Auth = () => {
   // =========================================
   useEffect(() => {
     sessionStorage.setItem('backUrl', window.location.href);
+  }, []);
+
+  // =========================================
+  useEffect(() => {
+    window.addEventListener('visibilitychange', test2);
+    return () => window.removeEventListener('visibilitychange', test2);
   }, []);
 
   // =========================================
