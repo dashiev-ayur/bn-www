@@ -66,6 +66,11 @@ const Auth = () => {
   }, []);
 
   // =========================================
+  useEffect(() => {
+    window.addEventListener('storage', test);
+    return () => window.removeEventListener('storage', test);
+  }, []);
+  
   return null;
 }
 
