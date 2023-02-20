@@ -12,6 +12,7 @@ const Auth = () => {
   const [refreshing, setRefreshing] = useState(true);
 
   const test = () => store.auth.test().catch(() => null);
+
   const test2 = () => {
     if(!document.hidden) store.auth.test().catch(() => null);
   };
