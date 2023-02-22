@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios';
 import { makeAutoObservable } from 'mobx';
 import { RootStore } from '.';
 import { api } from '../api';
@@ -29,6 +30,12 @@ export class AuthStore {
     const s = localStorage.getItem('auth');
     return s ? JSON.parse(s) : null;
   }
+
+  public fromStorage() {
+    const auth = this.getAuth();
+    this.setAuth(auth);
+  }
+
 
   public async logout() {
     try {
@@ -62,7 +69,13 @@ export class AuthStore {
       this.setAuth(result.data);
       return result.data;
     } catch (err) {
-      this.setAuth(null);
+      if(err instanceof AxiosError){
+        console.log('refresh error: ', err.response?.status);
+      }
+      if (err instanceof Error) {
+        console.log('>>>: ', err.message);
+        this.setAuth(null);
+      }
       throw err;
     }
   }
@@ -70,11 +83,10 @@ export class AuthStore {
   async test() {
     try {
       const auth = this.getAuth();
-      if(!auth) throw new Error('Empty auth !');
+      if (!auth) throw new Error('Empty auth !');
       const result = await api.testAccessToken(auth?.access_token || '');
       return result.data;
     } catch (err) {
-      this.setAuth(null);
       throw err;
     }
   }
